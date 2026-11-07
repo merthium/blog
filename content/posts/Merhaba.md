@@ -9,9 +9,3 @@ summary: ""
 
 ## Özet :
 Bu sadece yeni blog'um için denediğim bir test ve selamlama.
-## , Araçlar :
-Baş selamı :)
-## , Analiz :
-Dinamik
-## , Çözüm :
-Selam almak.
