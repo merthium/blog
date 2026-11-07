@@ -1,8 +1,7 @@
 baseURL = "https://SITEADIN.pages.dev/"
 title = "SITE ADI"
 theme = "PaperMod"
-languageCode = "tr"
-paginate = 10
+locale = "tr"
 enableRobotsTXT = true
 
 [markup.highlight]
@@ -34,3 +33,6 @@ enableRobotsTXT = true
     name = "Hakkımda"
     url = "/about/"
     weight = 3
+
+[pagination]
+  pagerSize = 10
