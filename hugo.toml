@@ -1,7 +1,11 @@
+
 baseURL = "https://blog.linkola.workers.dev/"
-title = "SITE ADI"
+title = "Blog of Linkola"
 theme = "PaperMod"
-locale = "tr"
+
+defaultContentLanguage = "tr"
+locale = "tr-TR"
+timeZone = "Europe/Istanbul"
 enableRobotsTXT = true
 
 [markup.highlight]
@@ -9,32 +13,47 @@ enableRobotsTXT = true
   codeFences = true
   lineNos = false
 
+[taxonomies]
+  category = "categories"
+  tag = "tags"
+
 [params]
-comments = true
-turnstileSiteKey = "0x4AAAAAAF36i1ENMrvTAtbI"
+  comments = true
+  turnstileSiteKey = "0x4AAAAAAF36i1ENMrvTAtbI"
+
   defaultTheme = "dark"
   disableThemeToggle = true
+
   ShowToc = true
   TocOpen = false
   ShowCodeCopyButtons = true
   ShowReadingTime = true
   ShowPostNavLinks = true
   ShowBreadCrumbs = false
-  description = "Reverse engineering ve binary exploitation writeup'ları"
 
-[menu]
-  [[menu.main]]
-    name = "Yazılar"
-    url = "/posts/"
+  description = "Computer & Network Engineering ve Reverse Engineering alanında writeuplar ve tutorialler."
+
+[menus]
+  [[menus.main]]
+    name = "Posts"
+    pageRef = "/posts"
     weight = 1
-  [[menu.main]]
-    name = "Etiketler"
-    url = "/tags/"
+
+  [[menus.main]]
+    name = "Categories"
+    pageRef = "/categories"
     weight = 2
-  [[menu.main]]
-    name = "Hakkımda"
-    url = "/about/"
+
+  [[menus.main]]
+    name = "Tags"
+    pageRef = "/tags"
     weight = 3
+
+  [[menus.main]]
+    name = "About"
+    pageRef = "/about"
+    weight = 4
 
 [pagination]
   pagerSize = 10
+
