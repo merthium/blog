@@ -1,4 +1,4 @@
-baseURL = "https://SITEADIN.pages.dev/"
+baseURL = "https://blog.linkola.workers.dev/"
 title = "SITE ADI"
 theme = "PaperMod"
 locale = "tr"
