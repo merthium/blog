@@ -7,13 +7,11 @@ tags: []
 summary: ""
 ---
 
-## Özet
+## Özet :
 Bu sadece yeni blog'um için denediğim bir test ve selamlama.
-## Araçlar
+## , Araçlar :
 Baş selamı :)
-## Analiz
+## , Analiz :
 Dinamik
-## Çözüm
+## , Çözüm :
 Selam almak.
-## Çıkarımlar
-Dostluk
