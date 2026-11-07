@@ -1,6 +1,14 @@
 name = "blog"
+main = "worker/index.js"
 compatibility_date = "2026-11-07"
 
 [assets]
 directory = "./public"
+binding = "ASSETS"
 not_found_handling = "404-page"
+run_worker_first = ["/api/*"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "blog-db"
+database_id = "f2a2ce42-f888-4b64-8f9e-786793882ae2"

@@ -1,0 +1,74 @@
+<section id="yorumlar">
+  <h2>Yorumlar</h2>
+  <div id="comment-list"><p>Yükleniyor…</p></div>
+
+  <form id="comment-form" autocomplete="off">
+    <input type="text" id="c-author" maxlength="40" placeholder="İsim" required>
+    <textarea id="c-body" maxlength="2000" rows="5" placeholder="Yorumun (düz metin)" required></textarea>
+    <div class="cf-turnstile" data-sitekey="{{ site.Params.turnstileSiteKey }}" data-theme="dark"></div>
+    <button type="submit">Gönder</button>
+    <p id="c-status" role="status"></p>
+  </form>
+</section>
+
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<script>
+(() => {
+  const slug = location.pathname;
+  const list = document.getElementById("comment-list");
+  const form = document.getElementById("comment-form");
+  const status = document.getElementById("c-status");
+
+  async function load() {
+    try {
+      const r = await fetch("/api/comments?slug=" + encodeURIComponent(slug));
+      const { comments } = await r.json();
+      list.textContent = "";
+      if (!comments || !comments.length) {
+        list.textContent = "Henüz yorum yok.";
+        return;
+      }
+      for (const c of comments) {
+        const box = document.createElement("div");
+        box.className = "comment";
+        const head = document.createElement("strong");
+        head.textContent = c.author;
+        const time = document.createElement("small");
+        time.textContent = " · " + new Date(c.created_at * 1000).toLocaleString("tr-TR");
+        const text = document.createElement("p");
+        text.textContent = c.body;
+        box.append(head, time, text);
+        list.append(box);
+      }
+    } catch {
+      list.textContent = "Yorumlar yüklenemedi.";
+    }
+  }
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    status.textContent = "Gönderiliyor…";
+    const tokenEl = form.querySelector('[name="cf-turnstile-response"]');
+    const res = await fetch("/api/comments", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        slug,
+        author: document.getElementById("c-author").value,
+        body: document.getElementById("c-body").value,
+        token: tokenEl ? tokenEl.value : "",
+      }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (window.turnstile) window.turnstile.reset();
+    if (res.ok) {
+      form.reset();
+      status.textContent = "Yorumun alındı, onaylandıktan sonra görünecek.";
+    } else {
+      status.textContent = "Hata: " + (data.error || res.status);
+    }
+  });
+
+  load();
+})();
+</script>

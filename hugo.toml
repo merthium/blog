@@ -10,6 +10,8 @@ enableRobotsTXT = true
   lineNos = false
 
 [params]
+comments = true
+turnstileSiteKey = "0x4AAAAAAF36i1ENMrvTAtbI"
   defaultTheme = "dark"
   disableThemeToggle = true
   ShowToc = true
