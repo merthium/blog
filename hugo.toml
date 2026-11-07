@@ -1,0 +1,36 @@
+baseURL = "https://SITEADIN.pages.dev/"
+title = "SITE ADI"
+theme = "PaperMod"
+languageCode = "tr"
+paginate = 10
+enableRobotsTXT = true
+
+[markup.highlight]
+  noClasses = false
+  codeFences = true
+  lineNos = false
+
+[params]
+  defaultTheme = "dark"
+  disableThemeToggle = true
+  ShowToc = true
+  TocOpen = false
+  ShowCodeCopyButtons = true
+  ShowReadingTime = true
+  ShowPostNavLinks = true
+  ShowBreadCrumbs = false
+  description = "Reverse engineering ve binary exploitation writeup'ları"
+
+[menu]
+  [[menu.main]]
+    name = "Yazılar"
+    url = "/posts/"
+    weight = 1
+  [[menu.main]]
+    name = "Etiketler"
+    url = "/tags/"
+    weight = 2
+  [[menu.main]]
+    name = "Hakkımda"
+    url = "/about/"
+    weight = 3
