@@ -151,6 +151,7 @@
       for (const c of comments) {
         const box = document.createElement("article");
         box.className = "comment";
+        box.id = "comment-" + c.id;
         const meta = document.createElement("div");
         meta.className = "comment-meta";
         const avatar = document.createElement("img");
