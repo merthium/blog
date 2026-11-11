@@ -27,7 +27,7 @@ enableRobotsTXT = true
   ShowToc = true
   TocOpen = false
   ShowCodeCopyButtons = true
-  ShowReadingTime = true
+  ShowReadingTime = false
   ShowPostNavLinks = true
   ShowBreadCrumbs = false
 
