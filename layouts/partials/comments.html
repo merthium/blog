@@ -9,6 +9,17 @@
     <input type="text" id="c-author" maxlength="40" placeholder="Görünen adın" required>
     <label for="c-body">Yorum</label>
     <textarea id="c-body" maxlength="2000" rows="5" placeholder="Ne düşünüyorsun?" required></textarea>
+    <div id="reply-email-option" hidden>
+      <div class="comment-email-label">
+        <label for="c-email">Yanıt aldığınızda haberdar olmak için e-posta (isteğe bağlı)</label>
+        <span class="comment-email-help">
+          <button class="comment-email-info" id="email-help" type="button" aria-label="Bildirimler hakkında bilgi" aria-expanded="false" aria-controls="email-explanation">!</button>
+          <span class="comment-email-popover" id="email-explanation" role="tooltip">Yalnızca Yazar yorumunuza yanıt yazdığında e-posta gönderilir. Yorum onaylandığında veya başka biri yorum yaptığında e-posta gönderilmez.</span>
+        </span>
+      </div>
+      <input id="c-email" type="email" maxlength="254" autocomplete="email" placeholder="eposta@ornek.com">
+      <p class="comment-email-privacy">E-postanız herkese görünmez; bildirim sonrasında kayıt silinir.</p>
+    </div>
     <div class="cf-turnstile" data-sitekey="{{ site.Params.turnstileSiteKey }}" data-theme="dark"></div>
     <button type="submit">Gönder</button>
     <p id="c-status" role="status"></p>
@@ -23,6 +34,26 @@
   const form = document.getElementById("comment-form");
   const status = document.getElementById("c-status");
   const count = document.getElementById("comment-count");
+  const emailOption = document.getElementById("reply-email-option");
+  const helpButton = document.getElementById("email-help");
+  const helpWrap = helpButton.closest(".comment-email-help");
+  helpButton.addEventListener("click", () => {
+    const opened = helpWrap.classList.toggle("is-open");
+    helpButton.setAttribute("aria-expanded", String(opened));
+  });
+  document.addEventListener("click", event => {
+    if (!helpWrap.contains(event.target)) {
+      helpWrap.classList.remove("is-open");
+      helpButton.setAttribute("aria-expanded", "false");
+    }
+  });
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape") {
+      helpWrap.classList.remove("is-open");
+      helpButton.setAttribute("aria-expanded", "false");
+      helpButton.blur();
+    }
+  });
 
 
   // Same username receives the same locally generated illustrated portrait.
@@ -60,10 +91,53 @@
     return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
   }
 
+  function renderAuthorReply(reply) {
+    const wrap = document.createElement("section");
+    wrap.className = "comment-reply author-reply";
+    wrap.id = "reply-" + reply.id;
+    const head = document.createElement("div");
+    head.className = "comment-meta";
+    const avatar = document.createElement("img");
+    avatar.className = "comment-avatar";
+    avatar.src = "/author-mask.jpg";
+    avatar.alt = "";
+    avatar.width = 46;
+    avatar.height = 46;
+    avatar.loading = "lazy";
+    const identity = document.createElement("div");
+    identity.className = "comment-identity";
+    const line = document.createElement("div");
+    line.className = "author-identity-line";
+    const name = document.createElement("a");
+    name.className = "comment-author";
+    name.href = "/author/";
+    name.textContent = "Yazar";
+    const mark = document.createElement("span");
+    mark.className = "author-verified";
+    mark.setAttribute("role", "img");
+    mark.setAttribute("aria-label", "Blog yazarı");
+    mark.title = "Blog yazarı";
+    mark.textContent = "✓";
+    const date = document.createElement("small");
+    date.className = "comment-date";
+    if (Number(reply.created_at) > 0) date.textContent = new Date(Number(reply.created_at) * 1000).toLocaleString("tr-TR");
+    const body = document.createElement("p");
+    body.className = "comment-body";
+    body.textContent = String(reply.body || "");
+    line.append(name, mark);
+    identity.append(line, date);
+    head.append(avatar, identity);
+    wrap.append(head, body);
+    return wrap;
+  }
+
   async function load() {
     try {
       const r = await fetch("/api/comments?slug=" + encodeURIComponent(slug));
-      const { comments } = await r.json();
+      if (!r.ok) throw new Error("Yorum isteği başarısız.");
+      const data = await r.json();
+      const { comments } = data;
+      emailOption.hidden = data.notificationsAvailable !== true;
       list.replaceChildren();
       if (!Array.isArray(comments)) throw new Error("Geçersiz yorum yanıtı");
       count.textContent = "(" + comments.length + ")";
@@ -102,6 +176,9 @@
         identity.append(head,time);
         meta.append(avatar,identity);
         box.append(meta,text);
+        if (Array.isArray(c.replies)) {
+          for (const reply of c.replies) box.append(renderAuthorReply(reply));
+        }
         list.append(box);
       }
     } catch {
@@ -120,6 +197,7 @@
         slug,
         author: document.getElementById("c-author").value,
         body: document.getElementById("c-body").value,
+        email: emailOption.hidden ? "" : document.getElementById("c-email").value,
         token: tokenEl ? tokenEl.value : "",
       }),
     });
