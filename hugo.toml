@@ -57,3 +57,4 @@ enableRobotsTXT = true
 [pagination]
   pagerSize = 10
 
+# Publish restore: rebuild from current GitHub content
