@@ -1,0 +1,27 @@
+{{- $meta := slice -}}
+
+{{- if not .Date.IsZero -}}
+    {{- $dateOnly := eq (.Date.Format "15:04:05") "00:00:00" -}}
+    {{- $iso := .Date.Format "2006-01-02T15:04:05Z07:00" -}}
+    {{- $calendarDate := .Date.Format "2006-01-02" -}}
+    {{- $absolute := .Date.Format "02.01.2006" -}}
+    {{- $tooltip := $absolute -}}
+    {{- if not $dateOnly -}}
+        {{- $tooltip = .Date.Format "02.01.2006 15:04" -}}
+    {{- end -}}
+    {{- $meta = $meta | append (printf `<time class="post-age" datetime="%s" data-calendar-date="%s" data-date-only="%t" title="Yayımlanma: %s">%s</time>` $iso $calendarDate $dateOnly $tooltip $absolute) -}}
+{{- end -}}
+
+{{- if (.Param "ShowWordCount") -}}
+    {{- $meta = $meta | append (printf "<span>%s</span>" (i18n "words" .WordCount | default (printf "%d words" .WordCount))) -}}
+{{- end -}}
+
+{{- if not (.Param "hideAuthor") -}}
+    {{- with (partial "author.html" .) -}}
+        {{- $meta = $meta | append (printf "<span>%s</span>" .) -}}
+    {{- end -}}
+{{- end -}}
+
+{{- with $meta -}}
+    {{- delimit . "&nbsp;·&nbsp;" | safeHTML -}}
+{{- end -}}
