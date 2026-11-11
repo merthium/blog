@@ -1,4 +1,7 @@
 {{- if eq .Section "posts" -}}
+  {{- /* The footer is cached across sections; keep post-only scripts in this hook. */ -}}
+  {{- $reading := resources.Get "js/reading.js" | minify | fingerprint -}}
+  <script defer src="{{ $reading.RelPermalink }}" integrity="{{ $reading.Data.Integrity }}"></script>
   {{- $posts := where site.RegularPages "Section" "posts" -}}
   {{- $related := ($posts.Related .) | first 3 -}}
   {{- $title := "İlgili yazılar" -}}

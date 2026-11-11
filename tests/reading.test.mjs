@@ -16,6 +16,21 @@ before(async () => {
 });
 const docAt = async path => domino.createDocument(await readFile(join(output, path), 'utf8'));
 
+test('every post loads reading tools once without leaking through the cached footer to other pages', async () => {
+  for (const path of ['posts/ag/index.html', 'posts/orta-seviye-crackme-cozumu/index.html', 'posts/basit-seviye-bir-crackme-cozumu/index.html']) {
+    const doc = await docAt(path);
+    const scripts = doc.querySelectorAll('script[src*="/js/reading."]');
+    assert.equal(scripts.length, 1, path);
+    assert.ok(scripts[0].hasAttribute('defer'));
+    assert.match(scripts[0].getAttribute('integrity'), /^sha256-/);
+    await readFile(join(output, scripts[0].getAttribute('src')));
+  }
+  for (const path of ['index.html', 'author/index.html', 'search/index.html']) {
+    const doc = await docAt(path);
+    assert.equal(doc.querySelectorAll('script[src*="/js/reading."]').length, 0, path);
+  }
+});
+
 test('built search index includes post content and taxonomy but excludes author pages and drafts', async () => {
   const index = JSON.parse(await readFile(join(output, 'index.json'), 'utf8'));
   assert.equal(index.length, 3);

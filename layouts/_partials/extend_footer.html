@@ -1,6 +1,2 @@
 {{- /* Keep post age current on the visitor's device. */ -}}
 <script defer src="{{ "js/post-age.js" | relURL }}"></script>
-{{- if and .IsPage (eq .Section "posts") -}}
-  {{- $reading := resources.Get "js/reading.js" | minify | fingerprint -}}
-<script defer src="{{ $reading.RelPermalink }}" integrity="{{ $reading.Data.Integrity }}"></script>
-{{- end -}}
