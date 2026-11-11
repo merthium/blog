@@ -1,0 +1,14 @@
+{
+  "name": "linkola-blog",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "hugo --minify",
+    "test": "node --test --test-isolation=none tests/reading.test.mjs",
+    "test:browser": "node tests/reading.browser.mjs"
+  },
+  "devDependencies": {
+    "playwright-core": "1.58.2",
+    "@mixmark-io/domino": "2.2.0"
+  }
+}

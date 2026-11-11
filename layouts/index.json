@@ -1,0 +1,8 @@
+{{- $index := slice -}}
+{{- range where site.RegularPages "Section" "posts" -}}
+  {{- if not .Params.searchHidden -}}
+    {{- $summary := .Description | default (.Summary | plainify | htmlUnescape) -}}
+    {{- $index = $index | append (dict "title" .Title "content" .Plain "permalink" .RelPermalink "summary" ($summary | truncate 180) "tags" (.Params.tags | default slice) "categories" (.Params.categories | default slice)) -}}
+  {{- end -}}
+{{- end -}}
+{{- $index | jsonify -}}

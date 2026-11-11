@@ -1,0 +1,22 @@
+{{- if eq .Section "posts" -}}
+  {{- $posts := where site.RegularPages "Section" "posts" -}}
+  {{- $related := ($posts.Related .) | first 3 -}}
+  {{- $title := "İlgili yazılar" -}}
+  {{- if not $related -}}
+    {{- $related = (where $posts "RelPermalink" "ne" .RelPermalink) | first 3 -}}
+    {{- $title = "Diğer yazılar" -}}
+  {{- end -}}
+  {{- with $related }}
+  <section class="related-posts" aria-labelledby="related-title">
+    <h2 id="related-title">{{ $title }}</h2>
+    <ul>{{ range . }}
+      <li><a href="{{ .RelPermalink }}"><h3>{{ .Title }}</h3>{{ with .Description }}<p>{{ . }}</p>{{ end }}</a></li>
+    {{ end }}</ul>
+  </section>
+  {{- end -}}
+  {{- with site.Home.OutputFormats.Get "RSS" }}
+  <aside class="follow-posts" aria-label="Blogu takip et">
+    <p>Yeni yazıları takip et.</p><a href="{{ .RelPermalink }}" type="application/rss+xml">RSS akışına abone ol ↗</a>
+  </aside>
+  {{- end -}}
+{{- end -}}

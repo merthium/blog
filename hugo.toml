@@ -58,3 +58,29 @@ enableRobotsTXT = true
   pagerSize = 10
 
 # Publish restore: rebuild from current GitHub content
+
+[outputs]
+  home = ["HTML", "RSS", "JSON"]
+
+[[menus.main]]
+  identifier = "search"
+  name = "Ara"
+  pageRef = "/search"
+  weight = 5
+
+[[menus.main]]
+  identifier = "rss"
+  name = "RSS"
+  url = "/index.xml"
+  weight = 6
+
+[related]
+  includeNewer = true
+  threshold = 30
+  toLower = true
+  [[related.indices]]
+    name = "tags"
+    weight = 100
+  [[related.indices]]
+    name = "categories"
+    weight = 70

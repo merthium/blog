@@ -1,0 +1,13 @@
+{{ define "main" }}
+<header class="page-header"><h1>{{ .Title }}</h1><p class="post-description">Başlık, içerik, kategori ve etiketlerde ara.</p></header>
+<div id="searchbox" class="site-search" data-index="{{ "index.json" | relURL }}">
+  <form id="site-search" role="search">
+    <label for="searchInput">Aranacak kelime</label>
+    <div class="search-controls"><input id="searchInput" type="search" name="q" placeholder="Örn. radare2, Wireshark, Linux…" autocomplete="off" maxlength="120" aria-describedby="search-status" disabled><button type="submit">Ara</button></div>
+  </form>
+  <p id="search-status" class="search-status" role="status" aria-live="polite" aria-atomic="true">Arama hazırlanıyor…</p>
+  <button id="search-retry" type="button" hidden>Tekrar dene</button>
+  <noscript><p>Arama için JavaScript gerekli. Yazıları <a href="{{ "posts/" | relURL }}">yazı arşivinden</a> okuyabilirsin.</p></noscript>
+  <ul id="searchResults" class="site-search-results" aria-label="Arama sonuçları"></ul>
+</div>
+{{ end }}
