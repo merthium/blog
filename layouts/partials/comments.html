@@ -1,10 +1,14 @@
-<section id="yorumlar">
-  <h2>Yorumlar</h2>
-  <div id="comment-list"><p>Yükleniyor…</p></div>
+<section id="yorumlar" class="comments-section" aria-labelledby="comments-title">
+  <div class="comments-heading"><h2 id="comments-title">Yorumlar <span id="comment-count" class="comment-count" aria-live="polite"></span></h2></div>
+  <div id="comment-list" aria-live="polite"><p class="comments-empty">Yükleniyor…</p></div>
 
   <form id="comment-form" autocomplete="off">
-    <input type="text" id="c-author" maxlength="40" placeholder="İsim" required>
-    <textarea id="c-body" maxlength="2000" rows="5" placeholder="Yorumun (düz metin)" required></textarea>
+    <h3>Yorum bırak</h3>
+    <p class="form-help">Yorumun onaylandıktan sonra yayımlanır. E-posta adresi gerekmez.</p>
+    <label for="c-author">İsim</label>
+    <input type="text" id="c-author" maxlength="40" placeholder="Görünen adın" required>
+    <label for="c-body">Yorum</label>
+    <textarea id="c-body" maxlength="2000" rows="5" placeholder="Ne düşünüyorsun?" required></textarea>
     <div class="cf-turnstile" data-sitekey="{{ site.Params.turnstileSiteKey }}" data-theme="dark"></div>
     <button type="submit">Gönder</button>
     <p id="c-status" role="status"></p>
@@ -18,30 +22,90 @@
   const list = document.getElementById("comment-list");
   const form = document.getElementById("comment-form");
   const status = document.getElementById("c-status");
+  const count = document.getElementById("comment-count");
+
+
+  // Same username receives the same locally generated illustrated portrait.
+  // Nothing is sent to an external avatar service.
+  function avatarFor(author) {
+    const label = String(author || "Anonim").trim().toLocaleLowerCase("tr-TR");
+    let hash = 2166136261;
+    for (const ch of label) hash = Math.imul(hash ^ ch.codePointAt(0), 16777619);
+    hash >>>= 0;
+    const backgrounds = ["#334c4b","#3b435d","#554254","#4d463c","#365345","#4a4058","#46565d","#574846"];
+    const skins = ["#f2c8a5","#dba987","#bc8065","#8d5949","#e8b994","#ad6d52"];
+    const hairs = ["#241e26","#453027","#694a36","#9d7550","#ded0b7","#2d3139"];
+    const shirts = ["#a7d5bd","#c0abd0","#b0bccf","#d2ad91","#8bb8b6","#ce9f9f"];
+    const hairlines = [
+      "M16 27Q14 9 32 10Q50 9 48 28L45 21Q35 24 26 17Q22 23 16 27Z",
+      "M16 24Q17 9 31 10Q46 9 49 24Q42 17 32 18Q22 17 16 24Z",
+      "M16 27Q13 9 32 8Q52 9 48 28L45 18Q35 26 18 23Z",
+      "M16 25Q18 11 29 10Q42 7 48 24Q35 16 16 25Z",
+      "M16 27Q11 12 25 11Q34 5 43 12Q53 15 48 28Q41 18 32 20Q23 14 16 27Z"
+    ];
+    const bg=backgrounds[hash%backgrounds.length], skin=skins[(hash>>>3)%skins.length];
+    const hair=hairs[(hash>>>7)%hairs.length], shirt=shirts[(hash>>>12)%shirts.length];
+    const hairline=hairlines[(hash>>>17)%hairlines.length];
+    const glasses=(hash&7)===3 ? '<g fill="none" stroke="#343239" stroke-width="1.7"><rect x="20" y="27" width="10" height="7" rx="2"/><rect x="34" y="27" width="10" height="7" rx="2"/><path d="M30 30h4"/></g>' : "";
+    const svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">'
+      +'<rect width="64" height="64" fill="'+bg+'"/>'
+      +'<circle cx="32" cy="24" r="24" fill="#ffffff" opacity=".05"/>'
+      +'<path d="M7 64C9 50 20 46 32 46S55 50 57 64" fill="'+shirt+'"/>'
+      +'<rect x="28" y="40" width="8" height="10" rx="3" fill="'+skin+'"/>'
+      +'<ellipse cx="32" cy="29" rx="16" ry="20" fill="'+skin+'"/>'
+      +'<path d="'+hairline+'" fill="'+hair+'"/>'
+      +'<circle cx="26" cy="31" r="1.4" fill="#29252c"/><circle cx="38" cy="31" r="1.4" fill="#29252c"/>'
+      +'<path d="M28 39Q32 42 36 39" fill="none" stroke="#814c4a" stroke-width="1.7" stroke-linecap="round"/>'
+      +glasses+'</svg>';
+    return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+  }
 
   async function load() {
     try {
       const r = await fetch("/api/comments?slug=" + encodeURIComponent(slug));
       const { comments } = await r.json();
-      list.textContent = "";
-      if (!comments || !comments.length) {
-        list.textContent = "Henüz yorum yok.";
+      list.replaceChildren();
+      if (!Array.isArray(comments)) throw new Error("Geçersiz yorum yanıtı");
+      count.textContent = "(" + comments.length + ")";
+      if (!comments.length) {
+        const empty = document.createElement("p");
+        empty.className = "comments-empty";
+        empty.textContent = "Henüz yorum yok. İlk yorumu sen bırakabilirsin.";
+        list.append(empty);
         return;
       }
       for (const c of comments) {
-        const box = document.createElement("div");
+        const box = document.createElement("article");
         box.className = "comment";
+        const meta = document.createElement("div");
+        meta.className = "comment-meta";
+        const avatar = document.createElement("img");
+        avatar.className = "comment-avatar";
+        avatar.src = avatarFor(c.author);
+        avatar.alt = "";
+        avatar.setAttribute("aria-hidden", "true");
+        avatar.width = 46;
+        avatar.height = 46;
+        avatar.loading = "lazy";
+        const identity = document.createElement("div");
+        identity.className = "comment-identity";
         const head = document.createElement("strong");
-        head.textContent = c.author;
+        head.className = "comment-author";
+        head.textContent = c.author || "Anonim";
         const time = document.createElement("small");
-        time.textContent = " · " + new Date(c.created_at * 1000).toLocaleString("tr-TR");
+        time.className = "comment-date";
+        const when = Number(c.created_at);
+        if (Number.isFinite(when) && when > 0) time.textContent = new Date(when * 1000).toLocaleString("tr-TR");
         const text = document.createElement("p");
-        text.textContent = c.body;
-        box.append(head, time, text);
+        text.className = "comment-body";
+        text.textContent = c.body || "";
+        identity.append(head,time);
+        meta.append(avatar,identity);
+        box.append(meta,text);
         list.append(box);
       }
     } catch {
-      list.textContent = "Yorumlar yüklenemedi.";
+      list.textContent = "Yorumlar yüklenemedi. Sayfayı yenileyip tekrar dene.";
     }
   }
 
