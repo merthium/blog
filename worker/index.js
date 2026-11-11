@@ -11,7 +11,6 @@ const SLUG_RE = /^\/posts\/[a-z0-9-]+\/$/;
 const MAX_RAW_CHARS = 8 * 1024;
 const RATE_LIMIT = 5;
 const RATE_WINDOW = 3600;
-const EMAIL_RE = /^(?=.{3,254}$)[^\s@<>"'\x00-\x1f]+@[^\s@<>"'\x00-\x1f]+\.[^\s@<>"'\x00-\x1f]+$/;
 
 async function sha256Hex(text) {
   const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
@@ -41,19 +40,12 @@ async function listComments(url, env) {
     .bind(slug)
     .all();
   let replies = [];
-  let notificationsAvailable = false;
   try {
     ({ results: replies = [] } = await env.DB.prepare(
       `SELECT r.id, r.comment_id, r.body, r.created_at FROM comment_replies r
        INNER JOIN comments c ON c.id = r.comment_id
        WHERE c.slug = ?1 AND c.status = 'approved' ORDER BY r.created_at ASC`
     ).bind(slug).all());
-    try {
-      await env.DB.prepare("SELECT comment_id FROM comment_subscriptions LIMIT 1").all();
-      notificationsAvailable = true;
-    } catch (e) {
-      if (!/no such table/i.test(String(e?.message || e))) throw e;
-    }
   } catch (e) {
     if (!/no such table/i.test(String(e?.message || e))) throw e;
   }
@@ -65,7 +57,6 @@ async function listComments(url, env) {
     });
   }
   return json({
-    notificationsAvailable,
     comments: results.map(c => ({ ...c, replies: replyMap.get(c.id) || [] }))
   });
 }
@@ -89,9 +80,6 @@ async function createComment(request, env) {
   const author = String(data.author || "").trim();
   const body = String(data.body || "").trim();
   const token = String(data.token || "");
-  const email = String(data.email || "").trim().toLowerCase();
-  if (email && !EMAIL_RE.test(email)) return json({ error: "Geçersiz e-posta adresi" }, 400);
-
   if (!SLUG_RE.test(slug)) return json({ error: "bad_slug" }, 400);
   if (author.length < 1 || author.length > 40) return json({ error: "bad_author" }, 400);
   if (body.length < 2 || body.length > 2000) return json({ error: "bad_body" }, 400);
@@ -111,24 +99,10 @@ async function createComment(request, env) {
     .first();
   if (recent && recent.n >= RATE_LIMIT) return json({ error: "rate_limited" }, 429);
 
-  const insert = env.DB.prepare(
+  // Notification emails are disabled. Ignore any email key from old clients.
+  await env.DB.prepare(
     "INSERT INTO comments (slug, author, body, created_at, status, ip_hash) VALUES (?1, ?2, ?3, ?4, 'pending', ?5)"
-  ).bind(slug, author, body, now, ipHash);
-  if (email) {
-    try {
-      await env.DB.batch([
-        insert,
-        env.DB.prepare(
-          "INSERT INTO comment_subscriptions (comment_id, email, created_at) VALUES (last_insert_rowid(), ?1, ?2)"
-        ).bind(email, now)
-      ]);
-    } catch (e) {
-      console.error("Comment subscription storage failed", String(e));
-      return json({ error: "Bildirim sistemi henüz hazır değil. E-postayı boş bırakarak yeniden deneyin." }, 503);
-    }
-  } else {
-    await insert.run();
-  }
+  ).bind(slug, author, body, now, ipHash).run();
 
   return json({ ok: true, status: "pending" }, 201);
 }

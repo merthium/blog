@@ -23,29 +23,6 @@
   width: 17px;
   height: 17px;
 }
-#yorumlar .comment-email-label { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin: 10px 0 6px; }
-#yorumlar .comment-email-label label { margin:0; }
-#yorumlar .comment-email-help { position:relative; display:inline-flex; }
-#yorumlar #comment-form .comment-email-info {
-  width:23px; height:23px; min-height:23px;
-  padding:0; border-radius:50%!important;
-  background:var(--code-bg,#18181d); color:var(--accent,#a7d5bd);
-  border:1px solid var(--accent,#a7d5bd); font-size:13px; cursor:help;
-}
-#yorumlar .comment-email-popover {
-  position:absolute; z-index:20; bottom:calc(100% + 10px); left:-10px;
-  width:min(290px,calc(100vw - 36px)); padding:12px;
-  color:var(--content,#dedee4); background:#23252a; border:1px solid var(--accent,#a7d5bd);
-  font: 13px/1.6 system-ui,sans-serif;
-  visibility:hidden; opacity:0; pointer-events:none;
-}
-#yorumlar .comment-email-help:hover .comment-email-popover,
-#yorumlar .comment-email-help:focus-within .comment-email-popover,
-#yorumlar .comment-email-help.is-open .comment-email-popover {
-  visibility:visible; opacity:1; pointer-events:auto;
-}
-#yorumlar .comment-email-privacy { font-size:12px; line-height:1.65; color:var(--secondary,#aaaab5); }
 @media (max-width:600px) {
   #yorumlar .author-reply { margin-left:4px; padding:12px; }
-  #yorumlar .comment-email-popover { left:auto; right:-4px; }
 }
