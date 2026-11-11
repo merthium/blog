@@ -1,0 +1,24 @@
+/* Blog of Linkola: comment profile illustrations. Only comment layout is affected. */
+#yorumlar .comment-meta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: nowrap;
+}
+#yorumlar .comment-avatar {
+  display: block;
+  flex: 0 0 46px;
+  width: 46px;
+  height: 46px;
+  object-fit: cover;
+  border: 1px solid var(--border, #303038);
+  background: var(--code-bg, #18181d);
+}
+#yorumlar .comment-identity { display: grid; min-width: 0; gap: 2px; }
+#yorumlar .comment-author { font-size: 15px; line-height: 1.4; overflow-wrap: anywhere; }
+#yorumlar .comment-date { font-family: var(--mono, ui-monospace, monospace); font-size: 12px; }
+#yorumlar .comment-body { margin: 16px 0 0; }
+@media (max-width: 600px) {
+  #yorumlar .comment-meta { gap: 11px; }
+  #yorumlar .comment-avatar { width: 40px; height: 40px; flex-basis: 40px; }
+}
